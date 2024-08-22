@@ -1,0 +1,35 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches:
+      - staging
+env:
+  ENV: staging
+  AWS_ACCESS_KEY_ID: ${{ secrets.STAGING_AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.STAGING_AWS_SECRET_ACCESS_KEY }}
+  AWS_ACCOUNT_ID: ${{ vars.STAGING_AWS_ACCOUNT_ID }}
+  AWS_ECR_REGION: ${{ vars.STAGING_AWS_ECR_REGION }}
+  AWS_ECR_REPO_NAME: ${{ vars.STAGING_AWS_ECR_REPO_NAME }}
+  AWS_JH_ENV_SECRET_NAME: ${{ vars.STAGING_AWS_JH_ENV_SECRET_NAME }}
+  AWS_ENV_USER_ACCESS_KEY_ID: ${{ secrets.STAGING_AWS_ENV_USER_ACCESS_KEY_ID }}
+  AWS_ENV_USER_SECRET_ACCESS_KEY: ${{ secrets.STAGING_AWS_ENV_USER_SECRET_ACCESS_KEY }}
+  AWS_ENV_USER_REGION: ${{ vars.STAGING_AWS_ENV_USER_REGION }}
+  AWS_ECR_TAG_NAME: ${{ vars.STAGING_AWS_ECR_TAG_NAME }}
+  AWS_PROFILE_PARAM: ${{ vars.STAGING_AWS_PROFILE_PARAM }}
+  ENV_FILE_PATH: ${{ vars.STAGING_ENV_FILE_PATH }}
+  AWS_INSTANCE_DEPLOY_SCRIPT: ${{ vars.STAGING_AWS_INSTANCE_DEPLOY_SCRIPT }}
+  AWS_INSTANCE_URL: ${{ secrets.STAGING_AWS_INSTANCE_URL }}
+  USE_SSH_DEPLOYMENT: ${{ vars.STAGING_USE_SSH_DEPLOYMENT }}
+  ENCODED_PEM: ${{ secrets.STAGING_ENCODED_PEM }}
+
+jobs:
+  deploy:
+    runs-on: [self-hosted]
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run deploy script to build docker and ship docker to ECR
+        run: ./scripts/deploy.sh

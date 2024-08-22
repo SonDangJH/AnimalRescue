@@ -1,0 +1,36 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - production
+env:
+  ENV: production
+  AWS_ACCESS_KEY_ID: ${{ secrets.PRODUCTION_AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.PRODUCTION_AWS_SECRET_ACCESS_KEY }}
+  AWS_ACCOUNT_ID: ${{ vars.PRODUCTION_AWS_ACCOUNT_ID }}
+  AWS_ECR_REGION: ${{ vars.PRODUCTION_AWS_ECR_REGION }}
+  AWS_ECR_REPO_NAME: ${{ vars.PRODUCTION_AWS_ECR_REPO_NAME }}
+  AWS_JH_ENV_SECRET_NAME: ${{ vars.PRODUCTION_AWS_JH_ENV_SECRET_NAME }}
+  AWS_ENV_USER_ACCESS_KEY_ID: ${{ secrets.PRODUCTION_AWS_ENV_USER_ACCESS_KEY_ID }}
+  AWS_ENV_USER_SECRET_ACCESS_KEY: ${{ secrets.PRODUCTION_AWS_ENV_USER_SECRET_ACCESS_KEY }}
+  AWS_ENV_USER_REGION: ${{ vars.PRODUCTION_AWS_ENV_USER_REGION }}
+  AWS_ECR_TAG_NAME: ${{ vars.PRODUCTION_AWS_ECR_TAG_NAME }}
+  AWS_PROFILE_PARAM: ${{ vars.PRODUCTION_AWS_PROFILE_PARAM }}
+  ENV_FILE_PATH: ${{ vars.PRODUCTION_ENV_FILE_PATH }}
+  AWS_INSTANCE_DEPLOY_SCRIPT: ${{ vars.PRODUCTION_AWS_INSTANCE_DEPLOY_SCRIPT }}
+  AWS_INSTANCE_URL: ${{ secrets.PRODUCTION_AWS_INSTANCE_URL }}
+  USE_SSH_DEPLOYMENT: ${{ vars.PRODUCTION_USE_SSH_DEPLOYMENT }}
+  ENCODED_PEM: ${{ secrets.PRODUCTION_ENCODED_PEM }}
+
+
+jobs:
+  deploy:
+    runs-on: [self-hosted]
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run deploy script to build docker and ship docker to ECR
+        run: ./scripts/deploy.sh
